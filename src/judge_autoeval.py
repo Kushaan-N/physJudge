@@ -16,12 +16,12 @@ import pandas as pd
 import torch
 from PIL import Image
 
-from common import CONDITIONS, CLIPS_CSV, RESULTS, WS, conditions, digit_expectation, done_keys, load_frames
+from common import CONDITIONS, CLIPS_CSV, RESULTS, VIDEOS, WS, conditions, digit_expectation, done_keys, load_frames
 
 VP2 = WS / "videophy" / "VIDEOPHY2"
 sys.path.insert(0, str(VP2))
 from mplug_owl_video.modeling_mplug_owl import MplugOwlForConditionalGeneration  # noqa: E402
-from mplug_owl_video.processing_mplug_owl import MplugOwlImageProcessor, MplugOwlProcessor  # noqa: E402
+from mplug_owl_video.processing_mplug_owl import MplugOwlImageProcessor, MplugOwlProcessor, get_index  # noqa: E402
 from template import PROMPT_PHYSICS  # noqa: E402
 from transformers.models.llama.tokenization_llama import LlamaTokenizer  # noqa: E402
 
@@ -45,13 +45,50 @@ def video_tensor(frames, image_processor):
     return pv[None].permute(0, 2, 1, 3, 4)  # 1,3,T,224,224
 
 
+NATIVE_DIR = WS / "data" / "mp4_native32"
+NATIVE_FPS = 8
+
+
+def native_frames(clip_id, k=32):
+    """Robustness R3: k frames on the repo's own get_index grid, plus the same grid offset
+    by half a stride. For clips with fewer than 2k frames the two sets partly overlap."""
+    import av
+    with av.open(str(VIDEOS / f"{clip_id}.mp4")) as c:
+        allf = np.stack([f.to_ndarray(format="rgb24") for f in c.decode(video=0)])
+    n = len(allf)
+    seg = float(n - 1) / k
+    start = int(seg / 2)
+    idx = get_index(n, k)
+    alt = np.clip(np.array([start + int(np.round(seg * (i + 0.5))) for i in range(k)]), 0, n - 1)
+    return allf[idx], allf[alt], n, int(len(set(idx) & set(alt)))
+
+
+def write_mp4(frames, path):
+    import av
+    h, w = frames.shape[1:3]
+    s = min(1.0, 640 / max(h, w))
+    W, H = int(w * s) // 2 * 2, int(h * s) // 2 * 2
+    with av.open(str(path), "w") as c:
+        st = c.add_stream("libx264", rate=NATIVE_FPS)
+        st.width, st.height, st.pix_fmt, st.options = W, H, "yuv420p", {"crf": "18"}
+        for f in frames:
+            for pk in st.encode(av.VideoFrame.from_ndarray(np.ascontiguousarray(f), format="rgb24").reformat(W, H)):
+                c.mux(pk)
+        for pk in st.encode():
+            c.mux(pk)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", default=str(WS / "models" / "videophy_2_auto"))
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", default=str(RESULTS / "scores_autoeval.jsonl"))
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--native32", action="store_true",
+                    help="robustness R3: 32 frames, written to mp4 and read by the repo's own load_video")
     args = ap.parse_args()
+    judge = JUDGE + ("_native32" if args.native32 else "")
+    NATIVE_DIR.mkdir(parents=True, exist_ok=True)
 
     tokenizer = LlamaTokenizer.from_pretrained(args.checkpoint)
     image_processor = MplugOwlImageProcessor.from_pretrained(args.checkpoint)
@@ -74,14 +111,28 @@ def main():
     done = done_keys(args.out)
     out = open(args.out, "a")
     for r in clips.itertuples():
-        frames, frames_alt = load_frames(r.clip_id)
-        conds = conditions(frames, frames_alt, r.clip_id)
         names = CONDITIONS if r.group == "plausible" else ["original"]
+        if all((r.clip_id, c, judge) in done for c in names):
+            continue
+        extra = {}
+        if args.native32:
+            f32, a32, n, overlap = native_frames(r.clip_id)
+            conds = conditions(f32, a32, r.clip_id)
+            extra = {"n_total": n, "alt_overlap": overlap}
+        else:
+            frames, frames_alt = load_frames(r.clip_id)
+            conds = conditions(frames, frames_alt, r.clip_id)
         for c in names:
-            if (r.clip_id, c, JUDGE) in done:
+            if (r.clip_id, c, judge) in done:
                 continue
-            inputs = dict(text)
-            inputs["video_pixel_values"] = video_tensor(conds[c], image_processor)
+            if args.native32:
+                path = NATIVE_DIR / f"{r.clip_id}_{c}.mp4"
+                write_mp4(conds[c], path)
+                inputs = processor(text=[PROMPT_PHYSICS], videos=[str(path)], num_frames=32, return_tensors="pt")
+                inputs = dict(inputs)
+            else:
+                inputs = dict(text)
+                inputs["video_pixel_values"] = video_tensor(conds[c], image_processor)
             inputs = {k: (v.to(dtype) if v.dtype == torch.float else v).to(args.device) for k, v in inputs.items()}
             with torch.no_grad():
                 g = model.generate(**inputs, do_sample=False, top_k=1, max_length=256,
@@ -96,7 +147,7 @@ def main():
                     probs = {d: float(sum(p[i] for i in ids)) for d, ids in digit_ids.items()}
                     step = s
                     break
-            rec = {"clip_id": int(r.clip_id), "group": r.group, "condition": c, "judge": JUDGE,
+            rec = {"clip_id": int(r.clip_id), "group": r.group, "condition": c, "judge": judge, **extra,
                    "score": parse(raw), "score_cont": digit_expectation(probs) if step is not None else None,
                    "digit_probs": probs, "digit_mass": sum(probs.values()), "answer_step": step, "raw": raw}
             out.write(json.dumps(rec) + "\n")
