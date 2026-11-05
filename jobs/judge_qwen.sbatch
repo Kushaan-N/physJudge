@@ -7,7 +7,7 @@
 #SBATCH --constraint=bf16&vram23
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
-#SBATCH --time=04:00:00
+#SBATCH --time=03:00:00
 #SBATCH --requeue
 # Qwen2.5-VL-7B judge over all (clip, condition) keys; resumable. Pass e.g. "--limit 2" to smoke-test.
 set -euo pipefail
