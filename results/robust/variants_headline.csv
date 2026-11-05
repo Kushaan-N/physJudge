@@ -1,0 +1,7 @@
+check,judge,score,n,reversed,alt,diff,lo,hi,excludes_0,spearman
+R3 autoeval_native32,autoeval_native32,score,100,0.03,0.02,0.01,0.0,0.03,False,0.5251649147971739
+R3 autoeval_native32,autoeval_native32,score_cont,100,0.5,0.48,0.02,-0.1,0.15,False,0.5692413837177881
+R3 disjoint-alt subset,autoeval_native32,score,43,0.023255813953488372,0.023255813953488372,0.0,0.0,0.0,False,
+R3 disjoint-alt subset,autoeval_native32,score_cont,43,0.5813953488372093,0.5348837209302325,0.046511627906976744,-0.16279069767441862,0.2558139534883721,False,
+R4 qwen_no_order,Qwen2.5-VL-7B-Instruct_no_order,score,100,0.01,0.03,-0.02,-0.06,0.02,False,0.142796273556685
+R4 qwen_no_order,Qwen2.5-VL-7B-Instruct_no_order,score_cont,100,0.37,0.4,-0.03,-0.14,0.08,False,0.3171107708361109
