@@ -50,13 +50,17 @@ def main():
     ap.add_argument("--checkpoint", default=str(WS / "models" / "videophy_2_auto"))
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", default=str(RESULTS / "scores_autoeval.jsonl"))
+    ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
 
     tokenizer = LlamaTokenizer.from_pretrained(args.checkpoint)
     image_processor = MplugOwlImageProcessor.from_pretrained(args.checkpoint)
     processor = MplugOwlProcessor(image_processor, tokenizer)
-    model = MplugOwlForConditionalGeneration.from_pretrained(args.checkpoint, torch_dtype=torch.bfloat16)
-    model = model.to("cuda").eval()
+    cuda = args.device == "cuda"
+    dtype = torch.bfloat16 if (not cuda or torch.cuda.is_bf16_supported()) else torch.float16
+    print("device", args.device, "dtype", dtype, torch.cuda.get_device_name() if cuda else "", flush=True)
+    model = MplugOwlForConditionalGeneration.from_pretrained(args.checkpoint, torch_dtype=dtype)
+    model = model.to(args.device).eval()
 
     # Digit tokens; LLaMA may emit '4' or '▁4'. Merge both spellings per digit.
     digit_ids = {d: [i for i in {tokenizer.convert_tokens_to_ids(d), tokenizer.convert_tokens_to_ids("▁" + d)}
@@ -78,7 +82,7 @@ def main():
                 continue
             inputs = dict(text)
             inputs["video_pixel_values"] = video_tensor(conds[c], image_processor)
-            inputs = {k: (v.bfloat16() if v.dtype == torch.float else v).to("cuda") for k, v in inputs.items()}
+            inputs = {k: (v.to(dtype) if v.dtype == torch.float else v).to(args.device) for k, v in inputs.items()}
             with torch.no_grad():
                 g = model.generate(**inputs, do_sample=False, top_k=1, max_length=256,
                                    output_scores=True, return_dict_in_generate=True)
