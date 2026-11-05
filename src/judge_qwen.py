@@ -14,8 +14,12 @@ from common import CONDITIONS, CLIPS_CSV, PC_INSTRUCTION, RESULTS, conditions, d
 MAX_PIXELS = 256 * 28 * 28  # ~256 visual tokens per frame
 
 
-def build_messages(frames):
-    content = [{"type": "text", "text": f"The following {len(frames)} images are frames from a video, in order."}]
+INTRO = {"default": "The following {n} images are frames from a video, in order.",
+         "no_order": "The following {n} images are frames from a video."}  # robustness R4
+
+
+def build_messages(frames, intro="default"):
+    content = [{"type": "text", "text": INTRO[intro].format(n=len(frames))}]
     content += [{"type": "image", "image": Image.fromarray(f), "max_pixels": MAX_PIXELS} for f in frames]
     content.append({"type": "text", "text": PC_INSTRUCTION + " Answer with a single number from 1 to 5 and nothing else."})
     return [{"role": "user", "content": content}]
@@ -27,11 +31,12 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="score only the first N clips (smoke test)")
     ap.add_argument("--out", default=str(RESULTS / "scores_qwen.jsonl"))
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--intro", default="default", choices=["default", "no_order"])
     args = ap.parse_args()
 
     from qwen_vl_utils import process_vision_info
 
-    judge = args.model.split("/")[-1]
+    judge = args.model.split("/")[-1] + ("" if args.intro == "default" else f"_{args.intro}")
     cuda = args.device == "cuda"
     dtype = torch.bfloat16 if (not cuda or torch.cuda.is_bf16_supported()) else torch.float16
     print("device", args.device, "dtype", dtype, torch.cuda.get_device_name() if cuda else "", flush=True)
@@ -51,7 +56,7 @@ def main():
         for c in names:
             if (r.clip_id, c, judge) in done:
                 continue
-            msgs = build_messages(conds[c])
+            msgs = build_messages(conds[c], args.intro)
             text = proc.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
             images, _ = process_vision_info(msgs)
             inputs = proc(text=[text], images=images, return_tensors="pt").to(model.device)
