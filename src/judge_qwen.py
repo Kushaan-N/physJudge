@@ -26,13 +26,16 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-VL-7B-Instruct")
     ap.add_argument("--limit", type=int, default=None, help="score only the first N clips (smoke test)")
     ap.add_argument("--out", default=str(RESULTS / "scores_qwen.jsonl"))
+    ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
 
     from qwen_vl_utils import process_vision_info
 
     judge = args.model.split("/")[-1]
-    dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(args.model, torch_dtype=dtype, device_map="cuda").eval()
+    cuda = args.device == "cuda"
+    dtype = torch.bfloat16 if (not cuda or torch.cuda.is_bf16_supported()) else torch.float16
+    print("device", args.device, "dtype", dtype, torch.cuda.get_device_name() if cuda else "", flush=True)
+    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(args.model, torch_dtype=dtype, device_map=args.device).eval()
     proc = AutoProcessor.from_pretrained(args.model)
     digit_ids = {d: proc.tokenizer.convert_tokens_to_ids(d) for d in "12345"}
 
