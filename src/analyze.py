@@ -15,6 +15,11 @@ from common import ALTERED, CLIPS_CSV, REPO, RESULTS  # noqa: E402
 
 N_BOOT = 10_000
 RNG = np.random.default_rng(0)
+# Exploratory (not pre-registered): plausible clips whose action makes an irreversible
+# change, hand-picked from a keyword pass over action+caption after the eyeball check
+# (pouring 25/1146, wood burning 651/835, falling 1010/2213, saw cut 1150, wringing
+# drips 1315, ripping paper 1764, breaking boards 1966).
+IRREVERSIBLE = [25, 651, 835, 1010, 1146, 1150, 1315, 1764, 1966, 2213]
 JUDGE_ORDER = ["autoeval", "Qwen2.5-VL-7B-Instruct"]
 JUDGE_LABEL = {"autoeval": "VideoPhy-2-AutoEval", "Qwen2.5-VL-7B-Instruct": "Qwen2.5-VL-7B"}
 COLOR = {"autoeval": "#2a78d6", "Qwen2.5-VL-7B-Instruct": "#eb6834"}
@@ -104,18 +109,20 @@ def plot(m, t, col, path):
     for j, dx in zip(judges, off):
         mj = m[m.judge == j].set_index("condition")
         base = mj.loc["original_alt", "pass_rate"]
-        ax.axhline(base, color=COLOR[j], ls="--", lw=1.5, alpha=0.8)
-        ax.text(2.45, base, f"original_alt\n{base:.2f}", color=INK2, fontsize=7.5, va="center")
+        ax.axhline(base, color=COLOR[j], ls="--", lw=1.5, alpha=0.8,
+                   label=f"{JUDGE_LABEL[j]}: original_alt baseline ({base:.2f})")
         x = np.arange(len(conds)) + dx
         y = mj.loc[conds, "pass_rate"].to_numpy()
         err = np.vstack([y - mj.loc[conds, "pass_lo"], mj.loc[conds, "pass_hi"] - y])
         ax.errorbar(x, y, yerr=err, fmt="o", ms=8, color=COLOR[j], ecolor=COLOR[j], elinewidth=2, capsize=0,
                     mec=SURF, mew=2, label=JUDGE_LABEL[j])
     ax.set_xticks(range(len(conds)), conds)
-    ax.set_xlim(-0.5, 2.9)
+    ax.set_xlim(-0.5, 2.5)
     ax.set_ylabel("pass rate (altered scored strictly below original)", color=INK2, fontsize=9)
     ax.set_title("Pass rate by condition, plausible clips", color=INK, fontsize=10.5, loc="left")
-    ax.legend(frameon=False, fontsize=8.5, loc="upper left", labelcolor=INK)
+    h, l = ax.get_legend_handles_labels()
+    order = [i for i, x in enumerate(l) if "baseline" not in x] + [i for i, x in enumerate(l) if "baseline" in x]
+    ax.legend([h[i] for i in order], [l[i] for i in order], frameon=False, fontsize=8, loc="upper left", labelcolor=INK)
     ax = axes[1]
     terc = ["low", "mid", "high"]
     for j, dx in zip(judges, off):
@@ -145,8 +152,10 @@ def main():
     eye_path = REPO / "results" / "eyeball_reversed.csv"
     eye = pd.read_csv(eye_path) if eye_path.exists() else None
     excl = list(eye[eye.plausible_backward == 1].clip_id) if eye is not None else []
+    irrev = clips[pl & clips.clip_id.isin(IRREVERSIBLE)].clip_id
+    not_irrev = list(clips[pl & ~clips.clip_id.isin(irrev)].clip_id)
 
-    M, T, B, E = [], [], [], []
+    M, T, B, E, IR = [], [], [], [], []
     judges = [j for j in JUDGE_ORDER if j in set(s.judge)]
     for j in judges:
         for col in ["score", "score_cont"]:
@@ -157,10 +166,13 @@ def main():
             if excl:
                 m2, _ = judge_metrics(s, clips, j, col, exclude=excl)
                 E += [dict(r, excluded=len(excl)) for r in m2 if r["condition"] == "reversed"]
+            m3, _ = judge_metrics(s, clips, j, col, exclude=not_irrev)
+            IR += [r for r in m3 if r["condition"] in ("reversed", "original_alt")]
     M, T, B = pd.DataFrame(M), pd.DataFrame(T), pd.DataFrame(B)
     M.to_csv(RESULTS / "metrics.csv", index=False)
     T.to_csv(RESULTS / "metrics_terciles.csv", index=False)
     B.to_csv(RESULTS / "baseline_spearman.csv", index=False)
+    pd.DataFrame(IR).to_csv(RESULTS / "metrics_irreversible_subset.csv", index=False)
     if E:
         pd.DataFrame(E).to_csv(RESULTS / "metrics_reversed_eyeball_excluded.csv", index=False)
     pd.set_option("display.width", 200, "display.max_columns", 30)
@@ -169,6 +181,8 @@ def main():
     print(T.round(3).to_string(index=False))
     if E:
         print(pd.DataFrame(E).round(3).to_string(index=False))
+    print(f"irreversible-action subset (exploratory), n={len(irrev)}")
+    print(pd.DataFrame(IR).round(3).to_string(index=False))
     plot(M, T, "score", REPO / "results" / "passrates.png")
     plot(M, T, "score_cont", REPO / "results" / "passrates_continuous.png")
 
