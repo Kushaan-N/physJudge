@@ -1,0 +1,80 @@
+
+== R1 integrity audit
+[PASS] autoeval: 600 rows, keys exactly as designed -- rows=600 dup=0 missing=0
+[PASS] autoeval: no unparsed scores
+[PASS] autoeval: digit mass >= 0.99, or answer at step 0 -- 12/600 below 0.99 (min 0.707), all at answer step 0
+   autoeval: headline without the 4 clips that have a low-mass call: +0.02 [-0.09, +0.14]
+[PASS] Qwen2.5-VL-7B-Instruct: 600 rows, keys exactly as designed -- rows=600 dup=0 missing=0
+[PASS] Qwen2.5-VL-7B-Instruct: no unparsed scores
+[PASS] Qwen2.5-VL-7B-Instruct: digit mass >= 0.99, or answer at step 0
+[PASS] clips: 100 per group
+[PASS] clips: pc ranges
+[PASS] clips: groups disjoint, ids unique
+[PASS] clips: all >= 2 s -- min=3.20s
+   per-generator counts: {'implausible': {'cogvideo': 16, 'cosmos': 16, 'hunyuan': 15, 'ray2': 15, 'sora': 8, 'videocrafter': 15, 'wan': 15}, 'plausible': {'cogvideo': 15, 'cosmos': 15, 'hunyuan': 14, 'ray2': 14, 'sora': 14, 'videocrafter': 14, 'wan': 14}}
+[PASS] frames: original and original_alt index sets disjoint -- 0 clips overlap
+[PASS] frames: shuffles are permutations with Spearman < 0.2
+[PASS] frames: frozen == middle frame, reversed == original[::-1]
+[PASS] scores.jsonl: guide schema fields present, 1200 rows
+
+== R5 alternative statistics (main scores)
+   autoeval: |orig-rev| median 0.0256 vs |orig-alt| median 0.0353; Wilcoxon rev>alt p=0.979
+   autoeval: margin rule (drop > 0.1) reversed - alt = -0.01
+   autoeval: margin rule (drop > 0.1) shuffled - alt = +0.13
+   autoeval: margin rule (drop > 0.1) frozen - alt = +0.03
+   Qwen2.5-VL-7B-Instruct: |orig-rev| median 0.0944 vs |orig-alt| median 0.0645; Wilcoxon rev>alt p=0.015
+   Qwen2.5-VL-7B-Instruct: margin rule (drop > 0.1) reversed - alt = -0.01
+   Qwen2.5-VL-7B-Instruct: margin rule (drop > 0.1) shuffled - alt = -0.05
+   Qwen2.5-VL-7B-Instruct: margin rule (drop > 0.1) frozen - alt = +0.26
+   bootstrap seed 1 autoeval: diff +0.01 [-0.11, +0.13]
+   bootstrap seed 1 Qwen2.5-VL-7B-Instruct: diff -0.11 [-0.22, +0.00]
+   bootstrap seed 2 autoeval: diff +0.01 [-0.11, +0.13]
+   bootstrap seed 2 Qwen2.5-VL-7B-Instruct: diff -0.11 [-0.22, +0.00]
+   bootstrap seed 3 autoeval: diff +0.01 [-0.11, +0.13]
+   bootstrap seed 3 Qwen2.5-VL-7B-Instruct: diff -0.11 [-0.22, +0.00]
+   per-generator reversed - alt (expected score):
+       model                  judge  n  diff    lo   hi
+    cogvideo               autoeval 15 -0.07 -0.33 0.20
+    cogvideo Qwen2.5-VL-7B-Instruct 15 -0.20 -0.47 0.07
+      cosmos               autoeval 15 -0.20 -0.53 0.13
+      cosmos Qwen2.5-VL-7B-Instruct 15 -0.20 -0.47 0.07
+     hunyuan               autoeval 14  0.29  0.00 0.57
+     hunyuan Qwen2.5-VL-7B-Instruct 14 -0.07 -0.21 0.00
+        ray2               autoeval 14  0.07 -0.14 0.29
+        ray2 Qwen2.5-VL-7B-Instruct 14 -0.07 -0.36 0.21
+        sora               autoeval 14 -0.21 -0.57 0.14
+        sora Qwen2.5-VL-7B-Instruct 14 -0.14 -0.50 0.21
+videocrafter               autoeval 14  0.00 -0.29 0.29
+videocrafter Qwen2.5-VL-7B-Instruct 14  0.21  0.00 0.43
+         wan               autoeval 14  0.21 -0.07 0.50
+         wan Qwen2.5-VL-7B-Instruct 14 -0.29 -0.57 0.00
+
+== R2 determinism (rerun 10+10 clips)
+[FAIL] autoeval: 60 reruns, integer scores identical -- 2 differ
+[FAIL] autoeval: expected scores within 0.01 -- max |diff| = 0.04012
+[FAIL] Qwen2.5-VL-7B-Instruct: 60 reruns, integer scores identical -- 2 differ
+[FAIL] Qwen2.5-VL-7B-Instruct: expected scores within 0.01 -- max |diff| = 0.07987
+
+== R3 AutoEval native 32-frame mp4 path / R4 Qwen prompt without 'in order'
+   R3 autoeval_native32: 600 rows, unparsed 0
+     score: baseline Spearman 0.53; reversed - alt +0.01 [+0.00, +0.03] -> CI excludes 0: False
+       frozen    pass 0.02 tie 0.73 vs alt +0.00 [-0.04, +0.04]
+       shuffled  pass 0.08 tie 0.90 vs alt +0.06 [+0.02, +0.11]
+       reversed  pass 0.03 tie 0.93 vs alt +0.01 [+0.00, +0.03]
+     score_cont: baseline Spearman 0.57; reversed - alt +0.02 [-0.10, +0.15] -> CI excludes 0: False
+       frozen    pass 0.13 tie 0.00 vs alt -0.35 [-0.47, -0.23]
+       shuffled  pass 0.72 tie 0.00 vs alt +0.24 [+0.12, +0.36]
+       reversed  pass 0.50 tie 0.00 vs alt +0.02 [-0.11, +0.15]
+     score on clips with disjoint alt frames (n=43): reversed - alt +0.00 [+0.00, +0.00]
+     score_cont on clips with disjoint alt frames (n=43): reversed - alt +0.05 [-0.16, +0.26]
+   R4 qwen_no_order: 600 rows, unparsed 0
+     score: baseline Spearman 0.14; reversed - alt -0.02 [-0.06, +0.02] -> CI excludes 0: False
+       frozen    pass 0.04 tie 0.94 vs alt +0.01 [-0.03, +0.05]
+       shuffled  pass 0.02 tie 0.95 vs alt -0.01 [-0.03, +0.00]
+       reversed  pass 0.01 tie 0.97 vs alt -0.02 [-0.06, +0.02]
+     score_cont: baseline Spearman 0.32; reversed - alt -0.03 [-0.14, +0.08] -> CI excludes 0: False
+       frozen    pass 0.68 tie 0.00 vs alt +0.28 [+0.16, +0.40]
+       shuffled  pass 0.31 tie 0.00 vs alt -0.09 [-0.21, +0.03]
+       reversed  pass 0.37 tie 0.00 vs alt -0.03 [-0.14, +0.08]
+
+INTEGRITY/DETERMINISM: SOME FAILED
