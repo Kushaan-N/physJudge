@@ -92,7 +92,7 @@ def baseline_spearman(s, judge, col):
 def plot(m, t, col, path):
     m, t = m[m.score == col], t[t.score == col]
     judges = [j for j in JUDGE_ORDER if j in set(m.judge)]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2), gridspec_kw={"width_ratios": [3, 3]}, facecolor=SURF)
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8), gridspec_kw={"width_ratios": [3, 3]}, facecolor=SURF)
     off = np.linspace(-0.12, 0.12, len(judges)) if len(judges) > 1 else [0]
     conds = ["frozen", "shuffled", "reversed"]
     for ax in axes:
@@ -122,7 +122,7 @@ def plot(m, t, col, path):
     ax.set_title("Pass rate by condition, plausible clips", color=INK, fontsize=10.5, loc="left")
     h, l = ax.get_legend_handles_labels()
     order = [i for i, x in enumerate(l) if "baseline" not in x] + [i for i, x in enumerate(l) if "baseline" in x]
-    ax.legend([h[i] for i in order], [l[i] for i in order], frameon=False, fontsize=8, loc="upper left", labelcolor=INK)
+    ax.legend([h[i] for i in order], [l[i] for i in order], frameon=False, fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=2, labelcolor=INK)
     ax = axes[1]
     terc = ["low", "mid", "high"]
     for j, dx in zip(judges, off):
