@@ -94,7 +94,8 @@ def main():
     image_processor = MplugOwlImageProcessor.from_pretrained(args.checkpoint)
     processor = MplugOwlProcessor(image_processor, tokenizer)
     cuda = args.device == "cuda"
-    dtype = torch.bfloat16 if (not cuda or torch.cuda.is_bf16_supported()) else torch.float16
+    # No fp16: mPLUG's temporal conv3d has no Half kernel in torch 2.1. Without bf16, use fp32.
+    dtype = torch.bfloat16 if (not cuda or torch.cuda.is_bf16_supported()) else torch.float32
     print("device", args.device, "dtype", dtype, torch.cuda.get_device_name() if cuda else "", flush=True)
     model = MplugOwlForConditionalGeneration.from_pretrained(args.checkpoint, torch_dtype=dtype)
     model = model.to(args.device).eval()
