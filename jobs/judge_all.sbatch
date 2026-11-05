@@ -9,7 +9,9 @@
 #SBATCH --mem=48G
 #SBATCH --time=05:00:00
 #SBATCH --requeue
+#SBATCH --exclude=gpu058
 # Both judges back to back on one GPU (the cluster is congested, so one allocation).
+# gpu058 is excluded: Blackwell (sm_120) has no kernels in these torch builds.
 # Each judge skips keys already in its jsonl, so a preempted/requeued job resumes.
 set -euo pipefail
 export WS=/scratch3/workspace/knaskar_umass_edu-judgecheck HF_HOME=/scratch3/workspace/knaskar_umass_edu-judgecheck/hf HF_HUB_OFFLINE=1
