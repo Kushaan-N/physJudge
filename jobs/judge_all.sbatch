@@ -7,7 +7,7 @@
 #SBATCH --constraint=vram23
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
-#SBATCH --time=05:00:00
+#SBATCH --time=03:00:00
 #SBATCH --requeue
 #SBATCH --exclude=gpu058
 # Both judges back to back on one GPU (the cluster is congested, so one allocation).
