@@ -1,0 +1,74 @@
+                 judge      score   n  spearman    p  mean_plausible  mean_implausible  unparsed
+              autoeval      score 200     0.531 0.00           3.950             3.180         0
+              autoeval score_cont 200     0.562 0.00           3.729             3.152         0
+Qwen2.5-VL-7B-Instruct      score 200     0.128 0.07           4.920             4.840         0
+Qwen2.5-VL-7B-Instruct score_cont 200     0.325 0.00           4.226             3.975         0
+                 judge      score    condition   n  pass_rate  pass_lo  pass_hi  tie_rate  mean_drop  drop_lo  drop_hi  diff_vs_alt  diff_lo  diff_hi
+              autoeval      score original_alt 100       0.04     0.01     0.08      0.92      0.000   -0.060    0.050          NaN      NaN      NaN
+              autoeval      score       frozen 100       0.02     0.00     0.05      0.68     -0.310   -0.420   -0.200        -0.02    -0.07     0.03
+              autoeval      score     shuffled 100       0.05     0.01     0.10      0.92      0.020   -0.030    0.080         0.01    -0.05     0.07
+              autoeval      score     reversed 100       0.02     0.00     0.05      0.95     -0.010   -0.050    0.030        -0.02    -0.06     0.02
+              autoeval score_cont original_alt 100       0.50     0.40     0.60      0.00     -0.008   -0.023    0.007          NaN      NaN      NaN
+              autoeval score_cont       frozen 100       0.17     0.10     0.25      0.00     -0.252   -0.315   -0.194        -0.33    -0.45    -0.21
+              autoeval score_cont     shuffled 100       0.62     0.52     0.71      0.00      0.020   -0.005    0.043         0.12     0.00     0.24
+              autoeval score_cont     reversed 100       0.51     0.41     0.61      0.00     -0.002   -0.013    0.008         0.01    -0.11     0.13
+Qwen2.5-VL-7B-Instruct      score original_alt 100       0.01     0.00     0.03      0.97     -0.010   -0.040    0.020          NaN      NaN      NaN
+Qwen2.5-VL-7B-Instruct      score       frozen 100       0.02     0.00     0.05      0.92     -0.040   -0.100    0.010         0.01    -0.02     0.05
+Qwen2.5-VL-7B-Instruct      score     shuffled 100       0.00     0.00     0.00      0.96     -0.040   -0.080   -0.010        -0.01    -0.03     0.00
+Qwen2.5-VL-7B-Instruct      score     reversed 100       0.01     0.00     0.03      0.95     -0.030   -0.080    0.010         0.00    -0.03     0.03
+Qwen2.5-VL-7B-Instruct score_cont original_alt 100       0.47     0.37     0.57      0.00     -0.013   -0.043    0.019          NaN      NaN      NaN
+Qwen2.5-VL-7B-Instruct score_cont       frozen 100       0.65     0.55     0.74      0.00      0.053    0.007    0.104         0.18     0.05     0.31
+Qwen2.5-VL-7B-Instruct score_cont     shuffled 100       0.33     0.24     0.43      0.00     -0.064   -0.096   -0.034        -0.14    -0.26    -0.02
+Qwen2.5-VL-7B-Instruct score_cont     reversed 100       0.36     0.27     0.45      0.00     -0.045   -0.082   -0.006        -0.11    -0.22     0.00
+                 judge      score tercile          condition  n  pass_rate  pass_lo  pass_hi
+              autoeval      score     low           reversed 34      0.000    0.000    0.000
+              autoeval      score     low       original_alt 34      0.029    0.000    0.088
+              autoeval      score     low reversed-minus-alt 34     -0.029   -0.088    0.000
+              autoeval      score     mid           reversed 33      0.030    0.000    0.091
+              autoeval      score     mid       original_alt 33      0.091    0.000    0.212
+              autoeval      score     mid reversed-minus-alt 33     -0.061   -0.152    0.000
+              autoeval      score    high           reversed 33      0.030    0.000    0.091
+              autoeval      score    high       original_alt 33      0.000    0.000    0.000
+              autoeval      score    high reversed-minus-alt 33      0.030    0.000    0.091
+              autoeval score_cont     low           reversed 34      0.471    0.294    0.647
+              autoeval score_cont     low       original_alt 34      0.559    0.382    0.706
+              autoeval score_cont     low reversed-minus-alt 34     -0.088   -0.265    0.088
+              autoeval score_cont     mid           reversed 33      0.606    0.424    0.758
+              autoeval score_cont     mid       original_alt 33      0.636    0.455    0.788
+              autoeval score_cont     mid reversed-minus-alt 33     -0.030   -0.242    0.182
+              autoeval score_cont    high           reversed 33      0.455    0.303    0.636
+              autoeval score_cont    high       original_alt 33      0.303    0.152    0.455
+              autoeval score_cont    high reversed-minus-alt 33      0.152   -0.061    0.364
+Qwen2.5-VL-7B-Instruct      score     low           reversed 34      0.000    0.000    0.000
+Qwen2.5-VL-7B-Instruct      score     low       original_alt 34      0.029    0.000    0.088
+Qwen2.5-VL-7B-Instruct      score     low reversed-minus-alt 34     -0.029   -0.088    0.000
+Qwen2.5-VL-7B-Instruct      score     mid           reversed 33      0.030    0.000    0.091
+Qwen2.5-VL-7B-Instruct      score     mid       original_alt 33      0.000    0.000    0.000
+Qwen2.5-VL-7B-Instruct      score     mid reversed-minus-alt 33      0.030    0.000    0.091
+Qwen2.5-VL-7B-Instruct      score    high           reversed 33      0.000    0.000    0.000
+Qwen2.5-VL-7B-Instruct      score    high       original_alt 33      0.000    0.000    0.000
+Qwen2.5-VL-7B-Instruct      score    high reversed-minus-alt 33      0.000    0.000    0.000
+Qwen2.5-VL-7B-Instruct score_cont     low           reversed 34      0.471    0.294    0.647
+Qwen2.5-VL-7B-Instruct score_cont     low       original_alt 34      0.471    0.294    0.647
+Qwen2.5-VL-7B-Instruct score_cont     low reversed-minus-alt 34      0.000   -0.176    0.176
+Qwen2.5-VL-7B-Instruct score_cont     mid           reversed 33      0.242    0.121    0.394
+Qwen2.5-VL-7B-Instruct score_cont     mid       original_alt 33      0.424    0.242    0.606
+Qwen2.5-VL-7B-Instruct score_cont     mid reversed-minus-alt 33     -0.182   -0.333   -0.030
+Qwen2.5-VL-7B-Instruct score_cont    high           reversed 33      0.364    0.212    0.545
+Qwen2.5-VL-7B-Instruct score_cont    high       original_alt 33      0.515    0.333    0.697
+Qwen2.5-VL-7B-Instruct score_cont    high reversed-minus-alt 33     -0.152   -0.364    0.061
+                 judge      score condition  n  pass_rate  pass_lo  pass_hi  tie_rate  mean_drop  drop_lo  drop_hi  diff_vs_alt  diff_lo  diff_hi  excluded
+              autoeval      score  reversed 85      0.012    0.000    0.035     0.953     -0.024   -0.071    0.024       -0.024   -0.071    0.024        15
+              autoeval score_cont  reversed 85      0.459    0.353    0.565     0.000     -0.006   -0.018    0.006       -0.012   -0.141    0.118        15
+Qwen2.5-VL-7B-Instruct      score  reversed 85      0.000    0.000    0.000     0.953     -0.047   -0.094   -0.012       -0.012   -0.035    0.000        15
+Qwen2.5-VL-7B-Instruct score_cont  reversed 85      0.318    0.224    0.412     0.000     -0.065   -0.105   -0.025       -0.153   -0.271   -0.035        15
+irreversible-action subset (exploratory), n=10
+                 judge      score    condition  n  pass_rate  pass_lo  pass_hi  tie_rate  mean_drop  drop_lo  drop_hi  diff_vs_alt  diff_lo  diff_hi
+              autoeval      score original_alt 10        0.0      0.0      0.0       0.9     -0.100   -0.300    0.000          NaN      NaN      NaN
+              autoeval      score     reversed 10        0.0      0.0      0.0       0.8     -0.200   -0.500    0.000          0.0      0.0      0.0
+              autoeval score_cont original_alt 10        0.6      0.3      0.9       0.0     -0.013   -0.054    0.024          NaN      NaN      NaN
+              autoeval score_cont     reversed 10        0.4      0.1      0.7       0.0     -0.012   -0.036    0.011         -0.2     -0.6      0.2
+Qwen2.5-VL-7B-Instruct      score original_alt 10        0.0      0.0      0.0       0.9     -0.100   -0.300    0.000          NaN      NaN      NaN
+Qwen2.5-VL-7B-Instruct      score     reversed 10        0.0      0.0      0.0       0.9     -0.100   -0.300    0.000          0.0      0.0      0.0
+Qwen2.5-VL-7B-Instruct score_cont original_alt 10        0.3      0.0      0.6       0.0     -0.040   -0.093    0.008          NaN      NaN      NaN
+Qwen2.5-VL-7B-Instruct score_cont     reversed 10        0.3      0.0      0.6       0.0     -0.071   -0.146   -0.013          0.0     -0.3      0.3
