@@ -4,13 +4,14 @@
 #SBATCH --error=logs/%x-%j.err
 #SBATCH --partition=gpu,gpu-preempt,gpu-preempt-highvram,gpu-highvram
 #SBATCH --gres=gpu:1
-#SBATCH --constraint=vram23
+#SBATCH --constraint=bf16&vram23
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
 #SBATCH --time=01:30:00
 #SBATCH --requeue
 #SBATCH --exclude=gpu058
 # Robustness checks R2-R4 from ROBUSTNESS.md. All outputs resumable.
+# bf16 GPUs only, to match the main run (L40S, bf16) so R2 compares like with like.
 set -euo pipefail
 export WS=/scratch3/workspace/knaskar_umass_edu-judgecheck HF_HOME=/scratch3/workspace/knaskar_umass_edu-judgecheck/hf HF_HUB_OFFLINE=1
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}" MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"
