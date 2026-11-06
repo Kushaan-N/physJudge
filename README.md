@@ -123,6 +123,7 @@ passes.
 |---|---|
 | R1. Integrity audit (keys, frames, permutations, schema) | **Pass** |
 | R2. Rerun 60 calls per judge on an A100 vs the original L40S | **Fail:** 2/60 integers flip per judge; expected scores move by up to 0.04 (AutoEval) and 0.08 (Qwen). Paired comparisons within a run are unaffected, but cross-run comparisons carry this much noise. |
+| R2b. The same rerun on an L40S, the main run's GPU | **Pass:** bit-identical for both judges. The R2 differences come from the GPU model, not the pipeline. |
 | R3. AutoEval via its native 32-frame mp4 / decord path | **Reversal null holds** (+0.02 [−0.11, 0.15]); shuffling is now detected |
 | R4. Qwen prompt without "in order" | **Reversal null holds** (−0.03 [−0.14, 0.08]) |
 | R5. Wilcoxon, margin rule, bootstrap seeds, per-generator splits | **Null holds** |
