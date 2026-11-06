@@ -44,14 +44,27 @@ Qwen gives an integer 5 on 559 of 600 calls.
 | AutoEval | −0.09 [−0.26, 0.09] | −0.03 [−0.24, 0.18] | +0.15 [−0.06, 0.36] |
 | Qwen | 0.00 [−0.18, 0.18] | −0.18 [−0.33, −0.03] | −0.15 [−0.36, 0.06] |
 
-**Eyeball check.** 20 reversed plausible clips, labeled from contact sheets of the 16
-frames. 15 of 20 still look plausible backward. Excluding those 15, reversed −
-`original_alt` on the remaining 85 clips is:
-- AutoEval: −0.01 [−0.14, 0.12].
-- Qwen: −0.15 [−0.27, −0.04].
+**Eyeball check.** 20 reversed plausible clips, chosen with a fixed seed. The AI
+assistant made a first pass from contact sheets of the 16 frames. I then reviewed every
+clip as a flipbook playing the same 16 frames forward and backward, and my labels are
+the ones used ([`results/eyeball_reversed.csv`](results/eyeball_reversed.csv) keeps
+both sets).
 
-The labels are a first pass by the AI assistant from still frames
-([`results/eyeball_reversed.csv`](results/eyeball_reversed.csv)), not a human rating.
+| Reversed clip looks… | My label | AI first pass |
+|---|---|---|
+| Plausible backward | 15 | 15 |
+| Clear arrow-of-time violation (syrup, scooter, dust cloud) | 3 | 5 |
+| Unsure | 2 | — |
+
+We agree on 17 of the 18 clips I decided. The one disagreement is #553 (drop kick): with
+the kick never shown, the reversed clip reads as a teammate passing him the ball.
+
+Reversed − `original_alt`, expected score, excluding clips that look plausible backward:
+
+| Judge | Excluding the 15 (n = 85) | Also excluding the 2 unsure (n = 83) |
+|---|---|---|
+| AutoEval | +0.01 [−0.12, 0.14] | −0.01 [−0.13, 0.12] |
+| Qwen | −0.15 [−0.27, −0.04] | −0.14 [−0.27, −0.02] |
 
 **Irreversible-action subset** (exploratory, chosen after the eyeball check, n = 10):
 both judges are 0.0, with CIs of about ±0.3.
@@ -142,5 +155,5 @@ Qwen penalizes.
   re-runs it through the native mp4 path.
 - The 205 test rows missing from the HF mirror were dropped before sampling.
 - The optional Claude API judge (Judge C) was not run.
-- The 20-clip eyeball check was done by the AI assistant from still frames, not by a
-  human watching the clips.
+- The 20-clip eyeball check was rated from 16-frame flipbooks (the frames the judges
+  saw), not from the full-frame-rate videos.
