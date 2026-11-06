@@ -1,6 +1,7 @@
 """Pre-registered analysis of the irreversible-action replication (PREREG_IRREVERSIBLE.md).
 Writes results/irreversible/metrics.csv and results/irreversible/summary.txt."""
 import json
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,8 @@ def say(*a):
 
 
 def main():
+    # judge_metrics also computes motion terciles; this set has none, so those slices are empty.
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
     clips = pd.read_csv(REPO / "clips_irreversible.csv")
     labels = pd.read_csv(OUT / "labels.csv")[["clip_id", "verdict"]]
     clips = clips.merge(labels, on="clip_id")
