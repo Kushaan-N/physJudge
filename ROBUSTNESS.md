@@ -38,3 +38,9 @@ everything else the same. 600 calls. Same criterion as R3.
 - **Margin rule:** pass only if the drop is > 0.1 on the expected score.
 - **Per-generator** reversed − `original_alt` on the expected score.
 - **Bootstrap seed:** rerun the headline CIs with 3 different seeds.
+
+## R2b. Same-GPU determinism (added after R2 failed; committed before running)
+R2 reran on an A100, while the main run used an L40S. To separate hardware from
+pipeline nondeterminism, rerun the same 10 + 10 clips (60 calls per judge) pinned to an
+L40S in bf16. **Criterion:** integer scores identical, expected scores within 0.01. R2's
+failure stands either way. This check only says whether it came from the hardware.
