@@ -128,26 +128,55 @@ passes.
 | R4. Qwen prompt without "in order" | **Reversal null holds** (−0.03 [−0.14, 0.08]) |
 | R5. Wilcoxon, margin rule, bootstrap seeds, per-generator splits | **Null holds** |
 
+**Replication on irreversible actions** ([pre-registration](PREREG_IRREVERSIBLE.md),
+details in [DETAILS.md](DETAILS.md#replication-on-irreversible-actions)).
+- **Sample:** 100 new plausible clips from 7 pre-registered categories (pour, tear,
+  break, cut, fire, fall, collide).
+- **Labels:** made by the AI assistant, not by me (a recorded deviation), and committed
+  before any scoring. Only **8 of 100** reversed clips are clear violations. Most of these
+  generated clips never show the irreversible event: the candle never goes out and the
+  wood never splits.
+- **Result:** no judge penalizes reversal on any subset (expected score, reversed −
+  `original_alt`):
+
+| Judge | 8 clear violations | All 100 |
+|---|---|---|
+| AutoEval | +0.12 [−0.25, 0.50] | −0.03 [−0.16, 0.10] |
+| Qwen | 0.00 [−0.38, 0.38] | +0.01 [−0.13, 0.15] |
+| AutoEval, native path | −0.50 [−0.88, −0.12] | 0.00 [−0.13, 0.13] |
+
+- **Power:** 8 is below the pre-registered minimum of 30, so the violation subset is
+  underpowered.
+- **The side findings replicate on new clips:**
+  - AutoEval scores frozen clips higher (−0.40 [−0.51, −0.29]).
+  - The native-path AutoEval detects shuffling (+0.18 [0.04, 0.32]).
+  - Qwen scores shuffled clips higher (−0.17).
+
 **Scope and time.** These are claims about these two judges on these 100 clips. It took
 about 1 h from an empty directory to scored results. The 1,200 calls are inference only
-(no training) and took 21.5 min on one L40S. Robustness took another 39 min on an A100.
+(no training) and took 21.5 min on one L40S. Robustness took another 39 min on an A100,
+and the replication's 1,500 calls 24.5 min on an L40S.
 
 ## 4. What would change the conclusion; next week
 
 **Threats.**
-- **Most reversed clips are not clearly impossible.** 15 of 20 look fine backward, and
-  only 3 are clear violations. The null holds without the 15 and on 10
-  irreversible-action clips, but that subset is tiny and was picked after the fact.
-- **A real reversal effect could hide in the noise.** With 100 clips, the expected-score
-  CIs are ±0.12. A pre-registered set of about 300 irreversible-action clips (pouring,
-  breaking, burning), rated by humans, would settle it.
+- **Generated clips rarely contain an irreversible event.** Only 3 of 20 main-study
+  clips and 8 of 100 irreversible-action clips are clearly impossible backward. So
+  reversal on generated video is a weak test. The null holds on every subset, but on the
+  clear violations the CIs are about ±0.4. A judge that penalizes only blatant reversals
+  could still hide there.
+- **The replication labels are AI-made, from still frames.** Pour direction is hard to
+  see in stills, so a few pour clips may be violations labeled plausible. A human rating
+  the flipbooks ([review page](https://claude.ai/artifact/BpdyxyBxDuKrxKdCu2JEKW)) would
+  firm this up.
 
 **Next week.**
-1. The irreversible-only replication above.
+1. Real video of irreversible actions (Something-Something v2 pouring, tearing, dropping),
+   where the event actually happens. This gives a well-powered reversal test, and it
+   separates "generated" from "judged".
 2. The same paired test on rollouts from an action-conditioned world model, adding a
    wrong-action pairing as a second ground-truth negative.
-3. Real video (Something-Something v2), to separate "generated" from "judged".
-4. A reward-hacking check. AutoEval rewards stillness, so do the low-motion samples
+3. A reward-hacking check. AutoEval rewards stillness, so do the low-motion samples
    rank at the top, and does a generator trained with it drift toward less motion?
 
 ## 5. What I'd want to work on with you
@@ -167,7 +196,8 @@ this result: here the judge ignores time; there the model may ignore the action.
 | Frames and motion | `src/extract_frames.py` |
 | Judges | `src/judge_autoeval.py`, `src/judge_qwen.py` (`jobs/judge_all.sbatch`) |
 | Metrics and plots | `src/analyze.py` |
-| Robustness | `src/robust_checks.py` (`jobs/robust.sbatch`) |
+| Robustness | `src/robust_checks.py` (`jobs/robust.sbatch`, `jobs/r2b_same_gpu.sbatch`) |
+| Replication | `src/sample_irreversible.py`, `src/analyze_irreversible.py` (`jobs/irreversible.sbatch`) |
 
 Per-call scores, with raw outputs and digit probabilities, are in
 [`scores.jsonl`](scores.jsonl). Large files live on scratch; set `WS` to point at them.
