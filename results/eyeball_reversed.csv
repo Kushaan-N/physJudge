@@ -1,21 +1,21 @@
-clip_id,action,caption,plausible_backward,note
-44,ice skating,"An ice skater practices a spin, initially slow then gradually accelerating the rotations.",1,skating poses/spin read fine backward
-79,poking a stack of something without the stack collapsing,"A person's finger pokes a stack of CDs, creating a small gap between the top two discs.",1,hand rises off the CD stack; ordinary motion
-183,playing pinball,"A pinball rolls down a lane, hitting several small bumpers before settling in a lower scoring area.",1,almost static pinball table; no visible ball
-497,mopping floor,"A person mops up a puddle of water on a concrete floor, the water disappearing as the mop passes.",1,mopping strokes are symmetric; water change not visible
-553,drop kicking,"A soccer player runs, plants their foot, and drop kicks a soccer ball high into the air, the ball arcing visibly.",0,"low confidence: player gait reversed, ball arcs back to foot"
-1146,pouring something out of something,"Syrup is poured onto pancakes from a bottle, the syrup coating the surface.",0,syrup flows up into the bottle and the pile shrinks
-1429,tightrope walking,"A tightrope walker, with their balance pole extended to the side, uses it to brace against a sudden gust of wind.",1,pole sways; symmetric balancing motion
-1952,trapezing,Three trapeze artists execute a synchronized swing and simultaneous release.,1,swinging trapeze; direction-ambiguous
-1963,riding scooter,"A scooter collides with a trash can, the scooter tilting to one side before stopping.",0,"scooter drives backward uphill, rider facing camera"
-2030,,"A folded towel is unfolded on a beach chair, the fabric smooth and wrinkle-free.",1,"near-static towel, slow camera move"
-2122,unfolding something,"A tightly folded parachute is unfolded, revealing its vibrant colors and intricate design.",1,canopy deforming in wind; either direction plausible
-2176,rock climbing,A climber adjusts their climbing shoes before beginning the ascent.,1,lace-tying hand motion; direction-ambiguous
-2374,throwdiscus,"A heavy discus is thrown, making a heavy thud when it lands in loose gravel.",0,dust cloud converges back into the ground
-2427,poking something so it slightly moves,"A potter gently pokes a lump of clay with a tool, causing a small indentation to form.",1,hands/tool move near the pot; no visible indentation change
-2668,playing ice hockey,"A player checks another player, sending them sprawling onto the ice.",1,skaters gliding; direction-ambiguous
-2771,shooting basketball,"A child throws a basketball underhand, showing the ball's low trajectory and impact with the floor.",1,ball handling; direction-ambiguous
-2839,jetskiing,A jetski moves quickly through a narrow channel between two rocky outcrops.,0,low confidence: jetski travels backward through its own spray
-2926,flying kite,"A kite with a camera attached descends gently, lowered by a person pulling the string.",1,kite and walker drift; direction-ambiguous
-2937,,"Two swimmers race side-by-side, their hands entering the water simultaneously, creating small trails of bubbles.",1,swimming strokes; direction-ambiguous in stills
-3024,shoveling snow,A robotic arm uses a shovel to clear snow from a large parking lot.,1,robot arm motion is reversible; cleared strip barely changes
+clip_id,action,caption,claude_plausible_backward,claude_note,human_verdict,human_note,plausible_backward
+44,ice skating,"An ice skater practices a spin, initially slow then gradually accelerating the rotations.",1,skating poses/spin read fine backward,plausible,,1.0
+79,poking a stack of something without the stack collapsing,"A person's finger pokes a stack of CDs, creating a small gap between the top two discs.",1,hand rises off the CD stack; ordinary motion,plausible,,1.0
+183,playing pinball,"A pinball rolls down a lane, hitting several small bumpers before settling in a lower scoring area.",1,almost static pinball table; no visible ball,plausible,i dont even see the ball here tbh,1.0
+497,mopping floor,"A person mops up a puddle of water on a concrete floor, the water disappearing as the mop passes.",1,mopping strokes are symmetric; water change not visible,plausible,,1.0
+553,drop kicking,"A soccer player runs, plants their foot, and drop kicks a soccer ball high into the air, the ball arcing visibly.",0,"low confidence: player gait reversed, ball arcs back to foot",plausible,"if it showed him kicking this i would agree, but given that it did not, it could be his teammate passing him the ball. debatable",1.0
+1146,pouring something out of something,"Syrup is poured onto pancakes from a bottle, the syrup coating the surface.",0,syrup flows up into the bottle and the pile shrinks,violation,,0.0
+1429,tightrope walking,"A tightrope walker, with their balance pole extended to the side, uses it to brace against a sudden gust of wind.",1,pole sways; symmetric balancing motion,plausible,,1.0
+1952,trapezing,Three trapeze artists execute a synchronized swing and simultaneous release.,1,swinging trapeze; direction-ambiguous,plausible,,1.0
+1963,riding scooter,"A scooter collides with a trash can, the scooter tilting to one side before stopping.",0,"scooter drives backward uphill, rider facing camera",violation,,0.0
+2030,,"A folded towel is unfolded on a beach chair, the fabric smooth and wrinkle-free.",1,"near-static towel, slow camera move",plausible,,1.0
+2122,unfolding something,"A tightly folded parachute is unfolded, revealing its vibrant colors and intricate design.",1,canopy deforming in wind; either direction plausible,plausible,,1.0
+2176,rock climbing,A climber adjusts their climbing shoes before beginning the ascent.,1,lace-tying hand motion; direction-ambiguous,plausible,,1.0
+2374,throwdiscus,"A heavy discus is thrown, making a heavy thud when it lands in loose gravel.",0,dust cloud converges back into the ground,violation,,0.0
+2427,poking something so it slightly moves,"A potter gently pokes a lump of clay with a tool, causing a small indentation to form.",1,hands/tool move near the pot; no visible indentation change,plausible,,1.0
+2668,playing ice hockey,"A player checks another player, sending them sprawling onto the ice.",1,skaters gliding; direction-ambiguous,plausible,,1.0
+2771,shooting basketball,"A child throws a basketball underhand, showing the ball's low trajectory and impact with the floor.",1,ball handling; direction-ambiguous,plausible,,1.0
+2839,jetskiing,A jetski moves quickly through a narrow channel between two rocky outcrops.,0,low confidence: jetski travels backward through its own spray,unsure,,
+2926,flying kite,"A kite with a camera attached descends gently, lowered by a person pulling the string.",1,kite and walker drift; direction-ambiguous,plausible,,1.0
+2937,,"Two swimmers race side-by-side, their hands entering the water simultaneously, creating small trails of bubbles.",1,swimming strokes; direction-ambiguous in stills,unsure,,
+3024,shoveling snow,A robotic arm uses a shovel to clear snow from a large parking lot.,1,robot arm motion is reversible; cleared strip barely changes,plausible,,1.0
