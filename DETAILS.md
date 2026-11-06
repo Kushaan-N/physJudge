@@ -97,7 +97,12 @@ on an L40S.
 | Qwen | 2 of 60 | 0.08 |
 
 The bar was identical integers and expected scores within 0.01. The likely cause is
-bf16 numerics differing between GPU models. Same-hardware determinism was not tested.
+bf16 numerics differing between GPU models.
+
+**R2b. Same-GPU rerun (added after R2 failed, specified before running): pass.** The same
+60 calls per judge, rerun on an L40S in bf16, are bit-identical to the main run for both
+judges: every integer score, raw output and expected score matches. So the pipeline is
+deterministic, and the R2 differences come entirely from the change of GPU model.
 
 This does not affect the headline: every paired comparison is between conditions scored
 in the same run on the same GPU, so a run-level hardware offset cancels out. It does mean
