@@ -57,3 +57,12 @@ scores from this sample. Each clip gets one label:
   `frozen` vs `original_alt`; the native-path AutoEval result.
 - **Minimum sample:** if fewer than 30 clips are labeled `violation`, I report the
   primary result as underpowered, with its CI.
+
+## Deviation (added 2026-11-06 05:15 UTC, before any replication scores exist)
+
+I will not do the human review. Instead, the AI assistant (Claude) labels each reversed
+clip from contact sheets of its 16 frames, using the same three labels and the same
+definition. The labels are committed before the scoring job starts, so they are blind to
+the scores. On the main study's 20 reviewed clips, Claude's first pass agreed with my
+labels on 17 of 18. The analysis plan is otherwise unchanged, and the write-up reports
+the labels as AI-made.
