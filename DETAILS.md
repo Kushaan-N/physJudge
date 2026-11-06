@@ -154,11 +154,68 @@ Qwen penalizes.
   Two touch it (AutoEval on hunyuan +0.29 [0.00, 0.57]; Qwen on videocrafter +0.21
   [0.00, 0.43]), which is what chance predicts across 14 comparisons.
 
+## Replication on irreversible actions
+
+[Pre-registration](PREREG_IRREVERSIBLE.md) committed before sampling. The deviation (AI labels instead of a human review) was committed before any scoring, and labels were committed before the scoring job was released ([`results/irreversible/labels.csv`](results/irreversible/labels.csv)). 100 new plausible clips, 1,500 judge calls, bf16 on an L40S.
+
+**Labels** (reversed clip, 16-frame contact sheets):
+
+| Category | Clear violation | Unsure | Still plausible |
+|---|---|---|---|
+| break | 1 | 4 | 11 |
+| collide | 1 | 2 | 5 |
+| cut | 0 | 1 | 15 |
+| fall | 1 | 1 | 13 |
+| fire | 0 | 3 | 12 |
+| pour | 4 | 0 | 11 |
+| tear | 1 | 0 | 14 |
+| **all** | **8** | **11** | **81** |
+
+The 8 violations: concrete fragments reassembling (#433), a broken pot reassembling and leaping up (#1401), scattered papers flying into a stack (#2896), bowls or plates emptying while the stream continues (#601, #1646, #3321), beads gathering back into a jar (#1798), and torn plaster resealing (#544). Most clips never depict the irreversible event at all.
+
+**Reversed − `original_alt` pass rate:**
+
+| Judge | Score | 8 violations (primary, underpowered) | 19 violation + unsure | All 100 |
+|---|---|---|---|---|
+| AutoEval | integer | +0.00 [+0.00, +0.00] | +0.05 [+0.00, +0.16] | -0.01 [-0.05, +0.03] |
+| AutoEval | expected | +0.12 [-0.25, +0.50] | +0.05 [-0.21, +0.32] | -0.03 [-0.16, +0.10] |
+| Qwen | integer | +0.00 [+0.00, +0.00] | +0.05 [+0.00, +0.16] | +0.00 [-0.03, +0.03] |
+| Qwen | expected | +0.00 [-0.38, +0.38] | +0.05 [-0.26, +0.37] | +0.01 [-0.13, +0.15] |
+| AutoEval, native path | integer | +0.00 [+0.00, +0.00] | +0.00 [+0.00, +0.00] | -0.03 [-0.07, +0.00] |
+| AutoEval, native path | expected | -0.50 [-0.88, -0.12] | +0.00 [-0.26, +0.26] | +0.00 [-0.13, +0.13] |
+
+No CI is positive and excludes 0, so no judge penalizes reversal on any subset. On the 8 violations, the native-path AutoEval scores the reversed clip *higher* (−0.50).
+
+**Other conditions, all 100 clips, expected score (condition − `original_alt`):**
+
+| Judge | Shuffled | Frozen |
+|---|---|---|
+| AutoEval | +0.04 [-0.08, +0.17] | -0.40 [-0.51, -0.29] |
+| Qwen | -0.17 [-0.28, -0.06] | -0.04 [-0.17, +0.09] |
+| AutoEval, native path | +0.18 [+0.04, +0.32] | -0.36 [-0.47, -0.26] |
+
+These replicate the main study: AutoEval rewards freezing, the native-path AutoEval detects shuffling, and Qwen scores shuffled clips higher.
+
+**Per category, reversed − `original_alt`, expected score** (n = 8–16 each; one CI excludes 0, and it is negative):
+
+| Category | AutoEval | Qwen | AutoEval, native path |
+|---|---|---|---|
+| break | +0.19 [-0.19, +0.50] | -0.19 [-0.50, +0.19] | +0.06 [-0.19, +0.31] |
+| collide | +0.00 [-0.38, +0.38] | -0.12 [-0.62, +0.38] | +0.00 [-0.38, +0.38] |
+| cut | +0.00 [-0.31, +0.31] | +0.00 [-0.38, +0.38] | +0.19 [-0.12, +0.50] |
+| fall | -0.13 [-0.40, +0.13] | +0.00 [-0.33, +0.33] | -0.07 [-0.40, +0.27] |
+| fire | +0.07 [-0.27, +0.40] | +0.00 [-0.33, +0.33] | +0.27 [-0.07, +0.60] |
+| pour | -0.13 [-0.47, +0.27] | +0.13 [-0.20, +0.47] | -0.47 [-0.73, -0.20] |
+| tear | -0.20 [-0.53, +0.13] | +0.20 [-0.20, +0.60] | +0.00 [-0.40, +0.33] |
+
+**Caveats.** The labels are AI-made from still frames, and the direction of a pour can be hard to see in stills. Only 8 clips are clear violations, so the primary test is underpowered (CIs of about ±0.4).
+
 ## Deviations from the guide
 
 - AutoEval in the main run got the 16 frames directly rather than re-encoded mp4s. R3
   re-runs it through the native mp4 path.
 - The 205 test rows missing from the HF mirror were dropped before sampling.
 - The optional Claude API judge (Judge C) was not run.
+- The replication's violation labels were made by the AI assistant rather than by a human (recorded in its pre-registration before any scoring).
 - The 20-clip eyeball check was rated from 16-frame flipbooks (the frames the judges
   saw), not from the full-frame-rate videos.
