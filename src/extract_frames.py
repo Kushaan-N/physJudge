@@ -1,6 +1,8 @@
 """Decode each sampled clip, keep K evenly spaced frames plus the half-stride offset set,
 and compute a DINOv2 ViT-S/14 motion score. Writes data/frames/<clip_id>.npz and
-results/motion.csv."""
+results/motion.csv (or $MOTION)."""
+import os
+
 import av
 import cv2
 import numpy as np
@@ -60,7 +62,7 @@ def main():
         print(r.clip_id, rows[-1], flush=True)
 
     m = pd.DataFrame(rows)
-    m.to_csv(RESULTS / "motion.csv", index=False)
+    m.to_csv(RESULTS / os.environ.get("MOTION", "motion.csv"), index=False)
     print(m.describe())
 
 
