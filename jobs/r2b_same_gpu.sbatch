@@ -2,7 +2,7 @@
 #SBATCH --job-name=physjudge_r2b
 #SBATCH --output=logs/%x-%j.out
 #SBATCH --error=logs/%x-%j.err
-#SBATCH --partition=gpu-preempt-highvram,gpu-highvram,gpu-preempt,gpu
+#SBATCH --partition=gpu-preempt-highvram,gpu-highvram
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=l40s
 #SBATCH --cpus-per-task=8
