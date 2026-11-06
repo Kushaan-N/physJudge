@@ -14,7 +14,8 @@ ZIP = DATA / "mirror" / "videophy2_test .zip"
 VIDEOS = DATA / "videos"
 FRAMES = DATA / "frames"
 
-CLIPS_CSV = REPO / "clips.csv"
+# CLIPS selects the clip list (e.g. clips_irreversible.csv for the replication).
+CLIPS_CSV = REPO / os.environ.get("CLIPS", "clips.csv")
 RESULTS = REPO / "results"
 
 K = 16
