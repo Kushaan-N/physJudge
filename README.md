@@ -112,8 +112,9 @@ passes.
 - **Top-motion tercile:**
   - AutoEval: +0.15 [−0.06, 0.36].
   - Qwen: −0.15 [−0.36, 0.06].
-- **Eyeball check:** 15 of 20 reversed clips still look plausible backward. Excluding
-  them leaves the null unchanged.
+- **Eyeball check:** I reviewed 20 reversed clips as flipbooks. 15 still look plausible
+  backward, 3 are clear violations, and 2 are unsure. The AI first pass agreed on 17 of
+  my 18 decided clips. Excluding the 15 leaves the null unchanged.
 
 **Robustness** ([plan](ROBUSTNESS.md) committed before running; details in
 [DETAILS.md](DETAILS.md#robustness-checks-plan-committed-before-running)):
@@ -133,9 +134,9 @@ about 1 h from an empty directory to scored results. The 1,200 calls are inferen
 ## 4. What would change the conclusion; next week
 
 **Threats.**
-- **Most reversed clips are not clearly impossible.** 15 of 20 look fine backward. The
-  null holds without them and on 10 irreversible-action clips, but that subset is tiny
-  and was picked after the fact, and the eyeball labels come from still frames.
+- **Most reversed clips are not clearly impossible.** 15 of 20 look fine backward, and
+  only 3 are clear violations. The null holds without the 15 and on 10
+  irreversible-action clips, but that subset is tiny and was picked after the fact.
 - **A real reversal effect could hide in the noise.** With 100 clips, the expected-score
   CIs are ±0.12. A pre-registered set of about 300 irreversible-action clips (pouring,
   breaking, burning), rated by humans, would settle it.
@@ -173,5 +174,5 @@ The Qwen part runs on a free Colab T4 with `--model Qwen/Qwen2.5-VL-3B-Instruct`
 fallback).
 
 **AI tools.** Claude (via Claude Code) helped scope the design, wrote and ran the pipeline
-on the Unity cluster, made the first-pass eyeball labels, and drafted this write-up. I
-made the research decisions and checked the outputs.
+on the Unity cluster, made first-pass eyeball labels that I then reviewed, and drafted
+this write-up. I made the research decisions and checked the outputs.
