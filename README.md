@@ -141,7 +141,7 @@ Three directions interest me most.
 pitched as simulators for training and planning, and the stakes for getting the physics
 wrong are much higher there than in a stock-footage clip. I'd like to test whether these
 models, and the judges used to score them, respect basic anatomy and tissue mechanics,
-for example tissue that deforms and doesn't spring back after a cut. The approach would
+for example an incision that stays open once it's made. The approach would
 be the same as here: paired, constructed negatives against a noise floor, instead of
 trusting an automatic score.
 
