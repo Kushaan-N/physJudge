@@ -165,7 +165,6 @@ this result: here the judge ignores time; there the model may ignore the action.
   `--model Qwen/Qwen2.5-VL-3B-Instruct`.
 
 **AI tools.** I used Claude (via Claude Code) to scope the design with me, implement and
-run the pipeline, propose and run the robustness checks and the
-replication, label the replication clips, and draft this write-up. I set the question
-and the pass/fail rule, reviewed the main study's eyeball labels myself, and decided
-which follow-ups to run.
+run the pipeline, propose and run the robustness checks and the replication, label the
+replication clips, and draft this write-up. I set the question and the pass/fail rule,
+reviewed the main study's eyeball labels myself, and decided which follow-ups to run.
