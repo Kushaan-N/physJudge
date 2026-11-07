@@ -1,18 +1,19 @@
 # Do physics judges notice impossible time order?
 
-**No.** I tested two VLM physics judges on 100 VideoPhy-2 clips that humans rated
+**No.** I tested two VLM physics judges on VideoPhy-2 clips that humans rated
 plausible. Neither scored a clip lower when it was played backward than when its frames
-were merely resampled. VideoPhy-2-AutoEval, the judge used as an RL reward, catches
-shuffled frames in its native setup, so it notices jerky cuts, not physics. It also
-scores a frozen single frame *higher* than the real clip.
+were merely resampled. This held on 100 clips, through five robustness checks, and in a
+pre-registered replication on 100 irreversible-action clips. VideoPhy-2-AutoEval, the
+judge used as an RL reward, catches shuffled frames in its native setup, so it notices
+jerky cuts, not physics. It also scores a frozen single frame *higher* than the real clip.
 
 ![Pass rates](results/passrates_continuous.png)
 
-*Pass rate is the fraction of plausible clips where the altered version scored strictly
-below the original, using the expected score `Σ s·p(s)`. The dashed lines are each
-judge's `original_alt` noise floor: the same clip, frames offset by half a stride.
-Whiskers are 95% paired bootstrap CIs. The integer-score version is
-[here](results/passrates.png); 92–97% of its comparisons are ties.*
+*Pass rate is the share of plausible clips where the altered version scored strictly
+below the original (expected score `Σ s·p(s)`). Dashed lines are each judge's
+`original_alt` noise floor: the same clip, frames offset by half a stride. Whiskers are
+95% paired bootstrap CIs. The [integer-score version](results/passrates.png) is 92–97%
+ties.*
 
 ## 1. Question
 
@@ -26,42 +27,34 @@ shuffled or frozen?**
 
 ## 2. Method
 
-**Ground truth by construction.** Take clips humans rated plausible (`pc` 4–5). Reversing
-or shuffling them makes them implausible by construction, so no new labels are needed.
-This adapts the *Metric validity* starting point: the pass/fail rule comes from
-construction instead of a hand-written physics check.
+**Ground truth by construction.** Reversing or shuffling a clip that humans rated
+plausible (`pc` 4–5) makes it implausible, so no new labels are needed. This adapts the
+*Metric validity* starting point: the pass/fail rule comes from construction instead of
+a hand-written physics check.
 
-**Data.** VideoPhy-2 test split, using the HF video mirror. I sampled 100 plausible and
-100 implausible (`pc` 1–2) clips, stratified across the 7 generators with seed 0
+**Data.** VideoPhy-2 test split (HF video mirror). I sampled 100 plausible and 100
+implausible (`pc` 1–2) clips, stratified across the 7 generators with seed 0
 ([`clips.csv`](clips.csv)).
 
-**Conditions.** K = 16 evenly spaced frames per clip:
-
-| Condition | Frames |
-|---|---|
-| `original` | in order |
-| `original_alt` | the same grid offset by half a stride (noise floor) |
-| `reversed` | backward |
-| `shuffled` | seeded permutation, Spearman < 0.2 against true order |
-| `frozen` | the middle frame × 16 |
-
-All conditions come from the same decoded frames.
+**Conditions.** K = 16 evenly spaced frames, all built from the same decoded frames:
+- `original`
+- `original_alt`: the same grid offset by half a stride (noise floor)
+- `reversed`
+- `shuffled`: seeded, Spearman < 0.2 against true order
+- `frozen`: the middle frame × 16
 
 **Judges.**
+- **VideoPhy-2-AutoEval**, run with its own code, prompt and parser.
+- **Qwen2.5-VL-7B-Instruct**, given 16 images with VideoPhy-2's physics instruction.
 
-| Judge | How it was run |
-|---|---|
-| **VideoPhy-2-AutoEval** | Its own code, prompt and parser |
-| **Qwen2.5-VL-7B-Instruct** | Frames sent as 16 images, with VideoPhy-2's physics instruction and a number-only answer |
+Both decode greedily. I log the probabilities of the answer tokens 1–5, which gives an
+integer score and an expected score per call.
 
-Both judges are decoded greedily. I log the probability of each answer token 1–5, giving
-an integer score and an expected score per call.
-
-**Pre-registered rule** ([`6b147d2`](https://github.com/Kushaan-N/physJudge/commit/6b147d2)
-and [`2c9bb9e`](https://github.com/Kushaan-N/physJudge/commit/2c9bb9e), committed 21:20
-and 21:26 UTC; first scores committed at 21:58).
-- A judge passes a clip if the altered version scores strictly below the original; ties
-  fail.
+**Pre-registered rule** (commits [`6b147d2`](https://github.com/Kushaan-N/physJudge/commit/6b147d2)
+and [`2c9bb9e`](https://github.com/Kushaan-N/physJudge/commit/2c9bb9e) at 21:20 and
+21:26 UTC; first scores committed at 21:58).
+- A judge passes a clip if the altered version scores strictly below the original;
+  ties fail.
 - **Headline:** pass rate(`reversed`) − pass rate(`original_alt`), with a 95% CI from
   10,000 clip-level bootstrap resamples. It counts only if the CI excludes 0.
 
@@ -70,15 +63,9 @@ and 21:26 UTC; first scores committed at 21:58).
 
 ## 3. Result
 
-**Baseline signal** (Spearman correlation with human `pc` on 200 originals):
-
-| Judge | Integer score | Expected score |
-|---|---|---|
-| AutoEval | 0.53 | 0.56 |
-| Qwen | 0.13 | 0.33 |
-
-AutoEval carries real signal. Qwen's integer score has almost none: it outputs a 5 on 559
-of 600 calls.
+**Baseline signal.** Spearman correlation with human `pc` on the 200 originals is 0.53
+for AutoEval and 0.13 for Qwen (0.56 and 0.33 on the expected score). Qwen outputs a 5
+on 559 of 600 calls.
 
 **Headline** (reversed − `original_alt` pass rate):
 
@@ -89,95 +76,73 @@ of 600 calls.
 
 **Every CI includes 0.**
 
-**AutoEval.**
-- Reversal moves its expected score by −0.002 [−0.013, 0.008]. That is under about 2%
-  of its 0.58 gap between plausible and implausible clips.
-- Its reversed scores correlate 0.994 with the originals, *more* closely than the
-  resampled `original_alt` does (0.987).
+AutoEval:
+- Reversal moves its expected score by −0.002 [−0.013, 0.008], about 2% of its 0.58 gap
+  between plausible and implausible clips.
+- Its reversed scores track the originals (r = 0.994) more closely than its resampled
+  ones do (0.987).
 - Freezing a clip *raises* its score on 83% of clips.
 
-**Qwen.**
+Qwen:
 - Its scores drift slightly *up* under reordering.
 - Freezing is the only alteration it penalizes (+0.18 [0.05, 0.31]).
 
-Full tables are in [DETAILS.md](DETAILS.md).
-
 **Reading against the pre-registered outcome table.** Both judges land in row 1 ("ignores
-time; scores appearance"). In its native setup (R3 below), AutoEval moves to row 2: it
-detects shuffling (+0.24 [0.12, 0.36]) but not reversal. A smooth, impossible clip still
-passes.
+time; scores appearance"). In its native setup (R3), AutoEval moves to row 2: it detects
+shuffling (+0.24 [0.12, 0.36]) but not reversal.
 
 **Controls.**
 - **Integer vs expected score:** same conclusion, so ties don't drive the null.
-- **Top-motion tercile:**
-  - AutoEval: +0.15 [−0.06, 0.36].
-  - Qwen: −0.15 [−0.36, 0.06].
+- **Top-motion tercile:** AutoEval +0.15 [−0.06, 0.36]; Qwen −0.15 [−0.36, 0.06].
 - **Eyeball check:** I reviewed 20 reversed clips as flipbooks. 15 still look plausible
-  backward, 3 are clear violations, and 2 are unsure. The AI first pass agreed on 17 of
-  my 18 decided clips. Excluding the 15 leaves the null unchanged.
+  backward. Excluding them leaves the null unchanged.
 
-**Robustness** ([plan](ROBUSTNESS.md) committed before running; details in
-[DETAILS.md](DETAILS.md#robustness-checks-plan-committed-before-running)):
+**Robustness** ([plan](ROBUSTNESS.md) committed before running):
 
 | Check | Outcome |
 |---|---|
-| R1. Integrity audit (keys, frames, permutations, schema) | **Pass** |
-| R2. Rerun 60 calls per judge on an A100 vs the original L40S | **Fail:** 2/60 integers flip per judge; expected scores move by up to 0.04 (AutoEval) and 0.08 (Qwen). Paired comparisons within a run are unaffected, but cross-run comparisons carry this much noise. |
-| R2b. The same rerun on an L40S, the main run's GPU | **Pass:** bit-identical for both judges. The R2 differences come from the GPU model, not the pipeline. |
-| R3. AutoEval via its native 32-frame mp4 / decord path | **Reversal null holds** (+0.02 [−0.11, 0.15]); shuffling is now detected |
-| R4. Qwen prompt without "in order" | **Reversal null holds** (−0.03 [−0.14, 0.08]) |
-| R5. Wilcoxon, margin rule, bootstrap seeds, per-generator splits | **Null holds** |
+| R1. Integrity audit | Pass |
+| R2. Rerun on an A100 (main run: L40S) | **Fail:** 2 of 60 integers flip per judge. R2b, rerun on an L40S, is bit-identical, so the cause is the GPU model, not the pipeline. |
+| R3. AutoEval via its native 32-frame mp4 path | Reversal null holds (+0.02 [−0.11, 0.15]); shuffling is detected |
+| R4. Qwen prompt without "in order" | Reversal null holds (−0.03 [−0.14, 0.08]) |
+| R5. Wilcoxon, margin rule, seeds, per-generator | Null holds |
 
-**Replication on irreversible actions** ([pre-registration](PREREG_IRREVERSIBLE.md),
-details in [DETAILS.md](DETAILS.md#replication-on-irreversible-actions)).
-- **Sample:** 100 new plausible clips from 7 pre-registered categories (pour, tear,
+**Replication** ([pre-registration](PREREG_IRREVERSIBLE.md)).
+- **Sample:** 100 new plausible clips from 7 irreversible-action categories (pour, tear,
   break, cut, fire, fall, collide).
-- **Labels:** made by the AI assistant, not by me (a recorded deviation), and committed
-  before any scoring. Only **8 of 100** reversed clips are clear violations. Most of these
-  generated clips never show the irreversible event: the candle never goes out and the
-  wood never splits.
-- **Result:** no judge penalizes reversal on any subset (expected score, reversed −
-  `original_alt`):
+- **Labels:** made by the AI assistant, a recorded deviation, and committed before
+  scoring. Only **8 of 100** reversed clips clearly break physics; most of these clips
+  never show the irreversible event.
+- **Result:** no judge penalizes reversal on any subset. On all 100 clips, AutoEval is
+  −0.03 [−0.16, 0.10] and Qwen +0.01 [−0.13, 0.15]. The 8-clip subset falls below the
+  pre-registered minimum of 30, so it is underpowered.
+- **The side findings replicate:** frozen clips are rewarded and shuffling is detected.
 
-| Judge | 8 clear violations | All 100 |
-|---|---|---|
-| AutoEval | +0.12 [−0.25, 0.50] | −0.03 [−0.16, 0.10] |
-| Qwen | 0.00 [−0.38, 0.38] | +0.01 [−0.13, 0.15] |
-| AutoEval, native path | −0.50 [−0.88, −0.12] | 0.00 [−0.13, 0.13] |
+Full tables for everything above are in [DETAILS.md](DETAILS.md).
 
-- **Power:** 8 is below the pre-registered minimum of 30, so the violation subset is
-  underpowered.
-- **The side findings replicate on new clips:**
-  - AutoEval scores frozen clips higher (−0.40 [−0.51, −0.29]).
-  - The native-path AutoEval detects shuffling (+0.18 [0.04, 0.32]).
-  - Qwen scores shuffled clips higher (−0.17).
-
-**Scope and time.** These are claims about these two judges on these 100 clips. It took
-about 1 h from an empty directory to scored results. The 1,200 calls are inference only
-(no training) and took 21.5 min on one L40S. Robustness took another 39 min on an A100,
-and the replication's 1,500 calls 24.5 min on an L40S.
+**Scope and time.** These claims are about these two judges on these clips. It took
+about 1 h from an empty directory to scored results. The calls are inference only (no
+training): 21.5 min for the main 1,200 on one L40S, plus about 70 min of GPU time for
+robustness and the replication.
 
 ## 4. What would change the conclusion; next week
 
 **Threats.**
 - **Generated clips rarely contain an irreversible event.** Only 3 of 20 main-study
-  clips and 8 of 100 irreversible-action clips are clearly impossible backward. So
-  reversal on generated video is a weak test. The null holds on every subset, but on the
-  clear violations the CIs are about ±0.4. A judge that penalizes only blatant reversals
-  could still hide there.
-- **The replication labels are AI-made, from still frames.** Pour direction is hard to
-  see in stills, so a few pour clips may be violations labeled plausible. A human rating
-  the flipbooks ([review page](https://claude.ai/artifact/BpdyxyBxDuKrxKdCu2JEKW)) would
-  firm this up.
+  clips and 8 of 100 replication clips are clearly impossible backward, so reversal on
+  generated video is a weak test. On the clear violations the CIs are about ±0.4, wide
+  enough to hide a judge that penalizes only blatant reversals.
+- **The replication labels are AI-made, from still frames,** where pour direction is hard
+  to see. A human rating of the flipbooks would firm them up.
 
 **Next week.**
-1. Real video of irreversible actions (Something-Something v2 pouring, tearing, dropping),
-   where the event actually happens. This gives a well-powered reversal test, and it
-   separates "generated" from "judged".
+1. Real video of irreversible actions (Something-Something v2 pouring, tearing,
+   dropping), where the event actually happens. This gives a well-powered reversal test
+   and separates "generated" from "judged".
 2. The same paired test on rollouts from an action-conditioned world model, adding a
    wrong-action pairing as a second ground-truth negative.
-3. A reward-hacking check. AutoEval rewards stillness, so do the low-motion samples
-   rank at the top, and does a generator trained with it drift toward less motion?
+3. A reward-hacking check. AutoEval rewards stillness, so does ranking by its score
+   promote low-motion clips, and does a generator trained on it drift toward less motion?
 
 ## 5. What I'd want to work on with you
 
@@ -189,21 +154,18 @@ this result: here the judge ignores time; there the model may ignore the action.
 ---
 
 **Reproduce.**
+- **Pipeline:** `src/sample_clips.py`, then `src/extract_frames.py`, then
+  `src/judge_autoeval.py` and `src/judge_qwen.py` (`jobs/judge_all.sbatch`), then
+  `src/analyze.py`.
+- **Robustness:** `src/robust_checks.py`.
+- **Replication:** `src/sample_irreversible.py` and `src/analyze_irreversible.py`.
+- **Data:** per-call scores, with raw outputs, are in [`scores.jsonl`](scores.jsonl).
+  Set `WS` to the scratch directory that holds the videos and weights.
+- **Free GPU:** the Qwen part runs on a free Colab T4 with
+  `--model Qwen/Qwen2.5-VL-3B-Instruct`.
 
-| Step | Script |
-|---|---|
-| Sample clips | `src/sample_clips.py` |
-| Frames and motion | `src/extract_frames.py` |
-| Judges | `src/judge_autoeval.py`, `src/judge_qwen.py` (`jobs/judge_all.sbatch`) |
-| Metrics and plots | `src/analyze.py` |
-| Robustness | `src/robust_checks.py` (`jobs/robust.sbatch`, `jobs/r2b_same_gpu.sbatch`) |
-| Replication | `src/sample_irreversible.py`, `src/analyze_irreversible.py` (`jobs/irreversible.sbatch`) |
-
-Per-call scores, with raw outputs and digit probabilities, are in
-[`scores.jsonl`](scores.jsonl). Large files live on scratch; set `WS` to point at them.
-The Qwen part runs on a free Colab T4 with `--model Qwen/Qwen2.5-VL-3B-Instruct` (fp16
-fallback).
-
-**AI tools.** Claude (via Claude Code) helped scope the design, wrote and ran the pipeline
-on the Unity cluster, made first-pass eyeball labels that I then reviewed, and drafted
-this write-up. I made the research decisions and checked the outputs.
+**AI tools.** I used Claude (via Claude Code) to scope the design with me, implement and
+run the pipeline on the Unity cluster, propose and run the robustness checks and the
+replication, label the replication clips, and draft this write-up. I set the question
+and the pass/fail rule, reviewed the main study's eyeball labels myself, and decided
+which follow-ups to run.
