@@ -143,13 +143,6 @@ the model might ignore the action.
 
 ---
 
-**Reproducing.** The main pipeline is src/sample_clips.py, src/extract_frames.py, the two
-judge scripts (src/judge_autoeval.py and src/judge_qwen.py), then src/analyze.py. The
-robustness checks are in src/robust_checks.py, and the replication is in
-src/sample_irreversible.py and src/analyze_irreversible.py. Every judge call, with its raw
-output, is in [scores.jsonl](scores.jsonl). The Qwen part also runs on a free Colab T4
-using the 3B model.
-
 **AI tools.** I set the question and design, ran the experiments, and directed the
 follow-ups (robustness checks, the replication). I used Claude (via Claude Code) to check
 design feasibility, implement the pipeline, label the replication clips (see the
