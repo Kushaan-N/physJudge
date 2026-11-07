@@ -135,11 +135,28 @@ With another week, I would:
 
 ## 5. What I'd want to work on with you
 
-Action sensitivity in action-conditioned world models. If you change the action, does
-the rollout actually follow it, or does it mostly follow the first frame? I'd measure
-this against a seed-noise floor, the same way the resampled clip works here. It is
-basically the dynamics version of this result: here the judge ignores time, and there
-the model might ignore the action.
+Three directions interest me most.
+
+**World models in medicine.** Surgical and endoscopic video generators are starting to be
+pitched as simulators for training and planning, and the stakes for getting the physics
+wrong are much higher there than in a stock-footage clip. I'd like to test whether these
+models, and the judges used to score them, respect basic anatomy and tissue mechanics,
+for example tissue that deforms and doesn't spring back after a cut. The approach would
+be the same as here: paired, constructed negatives against a noise floor, instead of
+trusting an automatic score.
+
+**Touch in world models.** Almost every world model today is vision-only, but a lot of
+physical understanding (grip, slip, how hard something is) only shows up through
+contact. I'd want to see whether adding tactile signals to a world model actually
+improves its predictions in contact-rich tasks. The control is a vision-only model with
+the same capacity, which separates a real gain from simply having more inputs.
+
+**World models as robot policy evaluators.** One of the most practical uses of a world
+model is ranking robot policies before running them on real hardware. The question I'd
+ask is when that ranking can be trusted: does the world model order policies the same way
+real-world success does, and does it fail in predictable places, like contact or long
+horizons? It extends this project directly, from "can we trust the judge" to "can we
+trust the simulator".
 
 ---
 
